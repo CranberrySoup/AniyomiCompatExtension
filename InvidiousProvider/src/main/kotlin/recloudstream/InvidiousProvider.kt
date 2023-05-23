@@ -3,6 +3,7 @@ package recloudstream
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.AppUtils.tryParseJson
 import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.Qualities
 import com.lagradost.cloudstream3.utils.loadExtractor
 import java.net.URLEncoder
 
@@ -51,7 +52,7 @@ class InvidiousProvider : MainAPI() { // all providers must be an instance of Ma
     override suspend fun load(url: String): LoadResponse? {
         val videoId = Regex("watch\\?v=([a-zA-Z0-9_-]+)").find(url)?.groups?.get(1)?.value
         val res = tryParseJson<VideoEntry>(
-            app.get("$mainUrl/api/v1/videos/$videoId?fields=videoId,title,description,recommendedVideos,author,authorThumbnails").text
+            app.get("$mainUrl/api/v1/videos/$videoId?fields=videoId,title,description,recommendedVideos,author,authorThumbnails,formatStreams").text
         )
         return res?.toLoadResponse(this)
     }
@@ -84,7 +85,7 @@ class InvidiousProvider : MainAPI() { // all providers must be an instance of Ma
                 title,
                 "${provider.mainUrl}/watch?v=$videoId",
                 TvType.Movie,
-                "https://youtube.com/watch?v=$videoId"
+                "$videoId"
             ) {
                 plot = description
                 posterUrl = "${provider.mainUrl}/vi/$videoId/hqdefault.jpg"
@@ -109,11 +110,25 @@ class InvidiousProvider : MainAPI() { // all providers must be an instance of Ma
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        return loadExtractor(
-            data,
+        loadExtractor(
+            "https://youtube.com/watch?v=$data",
             subtitleCallback,
             callback
         )
+        callback(
+            ExtractorLink(
+                "Invidious",
+                "Invidious",
+                "$mainUrl/api/manifest/dash/id/$data",
+                "",
+                Qualities.Unknown.value,
+                false,
+                mapOf(),
+                null,
+                true
+            )
+        )
+        return true
     }
 
     companion object {
