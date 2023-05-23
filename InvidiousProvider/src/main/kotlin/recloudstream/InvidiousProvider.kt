@@ -51,7 +51,7 @@ class InvidiousProvider : MainAPI() { // all providers must be an instance of Ma
     override suspend fun load(url: String): LoadResponse? {
         val videoId = Regex("watch\\?v=([a-zA-Z0-9_-]+)").find(url)?.groups?.get(1)?.value
         val res = tryParseJson<VideoEntry>(
-            app.get("$mainUrl/api/v1/videos/$videoId?fields=videoId,title,description,recommendedVideos").text
+            app.get("$mainUrl/api/v1/videos/$videoId?fields=videoId,title,description,recommendedVideos,author,authorThumbnails").text
         )
         return res?.toLoadResponse(this)
     }
@@ -75,7 +75,9 @@ class InvidiousProvider : MainAPI() { // all providers must be an instance of Ma
         val title: String,
         val description: String,
         val videoId: String,
-        val recommendedVideos: List<SearchEntry>
+        val recommendedVideos: List<SearchEntry>,
+        val author: String,
+        val authorThumbnails: List<Thumbnail>
     ) {
         suspend fun toLoadResponse(provider: InvidiousProvider): LoadResponse {
             return provider.newMovieLoadResponse(
@@ -84,12 +86,22 @@ class InvidiousProvider : MainAPI() { // all providers must be an instance of Ma
                 TvType.Movie,
                 "https://youtube.com/watch?v=$videoId"
             ) {
-                this.plot = description
+                plot = description
                 posterUrl = "${provider.mainUrl}/vi/$videoId/hqdefault.jpg"
                 recommendations = recommendedVideos.map { it.toSearchResponse(provider) }
+                actors = listOf(
+                    ActorData(
+                        Actor(author, authorThumbnails.get(authorThumbnails.size - 1)?.url ?: ""),
+                        roleString = "Author"
+                    )
+                )
             }
         }
     }
+
+    private data class Thumbnail(
+        val url: String
+    )
 
     override suspend fun loadLinks(
         data: String,
