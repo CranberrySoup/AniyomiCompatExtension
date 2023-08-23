@@ -6,7 +6,7 @@ version = 1
 
 cloudstream {
     // All of these properties are optional, you can safely remove them
-    description = "Use Aniyomi Extensions in CloudStream!"
+    description = "Use Aniyomi Extensions in CloudStream!\nNot guaranteed to work perfectly."
     authors = listOf("CranberrySoup")
 
     /**
