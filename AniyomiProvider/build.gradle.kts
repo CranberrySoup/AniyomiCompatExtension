@@ -1,11 +1,10 @@
 // use an integer for version numbers
-version = 2
+version = 1
 
 cloudstream {
     // All of these properties are optional, you can safely remove them
-
-    description = "Watch content from any invidious instance"
-    authors = listOf("Cloudburst")
+    description = "Use Aniyomi Extensions in CloudStream!"
+    authors = listOf("CranberrySoup")
 
     /**
     * Status int as the following:
@@ -20,5 +19,5 @@ cloudstream {
     // You can find a list of avaliable types here:
     // https://recloudstream.github.io/cloudstream/html/app/com.lagradost.cloudstream3/-tv-type/index.html
     tvTypes = listOf("Others")
-    iconUrl = "https://www.google.com/s2/favicons?domain=invidious.io&sz=%size%"
+    iconUrl = "https://www.google.com/s2/favicons?domain=aniyomi.org&sz=%size%"
 }
