@@ -86,8 +86,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingBottom="10dp"
         android:alpha="0.8"
+        android:paddingBottom="10dp"
         android:text="Extensions might not be found on Android 11+ due to privacy changes."
         android:textSize="17sp"
         android:textStyle="italic" />
@@ -108,6 +108,46 @@
 
         <ImageView
             android:id="@+id/force_install_button"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:clickable="true"
+            android:focusable="true"
+            tools:src="@drawable/baseline_get_app_24" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/external_apk_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="40dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Install APK externally"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.8"
+                android:paddingBottom="10dp"
+                android:text="Installing the APK externally might make Aniyomi extensions work better."
+                android:textSize="17sp"
+                android:textStyle="italic" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_gravity="center"
+            android:id="@+id/external_apk_button"
             android:layout_width="34dp"
             android:layout_height="34dp"
             android:clickable="true"

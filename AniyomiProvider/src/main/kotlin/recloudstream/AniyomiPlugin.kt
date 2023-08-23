@@ -4,17 +4,22 @@ import android.annotation.SuppressLint
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 import com.lagradost.cloudstream3.plugins.Plugin
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.example.BlankFragment
 import com.lagradost.cloudstream3.AcraApplication.Companion.getActivity
 import com.lagradost.cloudstream3.AcraApplication.Companion.getKey
 import com.lagradost.cloudstream3.AcraApplication.Companion.setKey
+import com.lagradost.cloudstream3.BuildConfig
 import com.lagradost.cloudstream3.CommonActivity.showToast
 import com.lagradost.cloudstream3.app
+import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.mvvm.normalSafeApiCall
 import com.lagradost.cloudstream3.ui.result.txt
 import com.lagradost.cloudstream3.utils.Coroutines.ioWorkSafe
@@ -129,6 +134,34 @@ class AniyomiPlugin : Plugin() {
                 tmpFile.deleteOnExit()
                 true
             } == true
+        }
+
+        fun installApk(context: Context): Boolean {
+            if (!getIsLocallyInstalled(context)) return false
+            val file = getLocalFile(context)
+            openApk(context, Uri.fromFile(file))
+            return true
+        }
+
+        private fun openApk(context: Context, uri: Uri) {
+            try {
+                uri.path?.let {
+                    val contentUri = FileProvider.getUriForFile(
+                        context,
+                        BuildConfig.APPLICATION_ID + ".provider",
+                        File(it)
+                    )
+                    val installIntent = Intent(Intent.ACTION_VIEW).apply {
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+                        data = contentUri
+                    }
+                    context.startActivity(installIntent)
+                }
+            } catch (e: Exception) {
+                logError(e)
+            }
         }
     }
 
