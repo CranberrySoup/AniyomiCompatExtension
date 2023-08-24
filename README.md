@@ -28,7 +28,7 @@ Installing this plugin does __not__ automatically download all Aniyomi extension
 
 **Aniyomi extensions do not work**
 
-1. Make sure the extension is function in Aniyomi.
+1. Make sure the extension is functioning in Aniyomi.
 2. Try downloading the compat APK instead of using it internally. Download [here](https://github.com/CranberrySoup/AniyomiCompat/raw/builds/app-debug.apk) or click Install APK externally in plugin settings.
 3. Restart CloudStream
 4. Make an issue here if it still does not work
