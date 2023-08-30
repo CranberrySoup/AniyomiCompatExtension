@@ -12,7 +12,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import com.example.BlankFragment
+import com.example.BottomFragment
 import com.lagradost.cloudstream3.AcraApplication.Companion.getActivity
 import com.lagradost.cloudstream3.AcraApplication.Companion.getKey
 import com.lagradost.cloudstream3.AcraApplication.Companion.setKey
@@ -37,12 +37,24 @@ const val ANIYOMI_PLUGIN_SUCCESS_KEY = "Aniyomi_Plugin_Successful_Install"
 class AniyomiPlugin : Plugin() {
     companion object {
         var currentLoadedFile: File? = null
+        private var cachedApkMetadata: OutputMetadata? = null
         private val packageName = "com.lagradost.aniyomicompat"
         private val pluginClassName = "$packageName.AniyomiPlugin"
         private val apkUrl =
             "https://github.com/CranberrySoup/AniyomiCompat/raw/builds/app-debug.apk"
+        private val apkMetadataUrl = "https://raw.githubusercontent.com/CranberrySoup/AniyomiCompat/builds/output-metadata.json"
         private val apkDir = "AniyomiCompat"
         private val apkName = "AniyomiCompat.apk"
+
+        data class Element(
+            val versionCode: Long?,
+            val versionName: String?,
+            val outputFile: String?
+        )
+
+        data class OutputMetadata(
+            val elements: List<Element>?
+        )
 
         /**
          * From Aliucord: https://github.com/Aliucord/Aliucord/blob/2cf5ce8d74c9da6965f6c57454f9583545e9cd24/Injector/src/main/java/com/aliucord/injector/Injector.kt#L162-L175
@@ -62,6 +74,13 @@ class AniyomiPlugin : Plugin() {
                 )
                     .apply { isAccessible = true }
             addDexPath.invoke(pathList, dex.absolutePath, null)
+        }
+
+        suspend fun getApkMetadata(): OutputMetadata? {
+            return cachedApkMetadata ?: app.get(apkMetadataUrl)
+                .parsedSafe<OutputMetadata>()?.also {
+                    cachedApkMetadata = it
+                }
         }
 
         fun listExtensions(context: Context): List<String> {
@@ -169,7 +188,7 @@ class AniyomiPlugin : Plugin() {
         this.openSettings = openSettings@{
             val manager = (context.getActivity() as? AppCompatActivity)?.supportFragmentManager
                 ?: return@openSettings
-            BlankFragment(this).show(manager, "AniyomiCompat")
+            BottomFragment(this).show(manager, "AniyomiCompat")
         }
         runBlocking {
             // Prefer app to make debugging easier

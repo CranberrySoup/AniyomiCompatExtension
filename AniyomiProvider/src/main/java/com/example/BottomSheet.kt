@@ -1,8 +1,10 @@
 package com.example
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,15 +16,19 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.lagradost.cloudstream3.AcraApplication.Companion.getActivity
 import com.lagradost.cloudstream3.CommonActivity.showToast
 import com.lagradost.cloudstream3.mvvm.normalSafeApiCall
 import com.lagradost.cloudstream3.plugins.Plugin
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
+import com.lagradost.cloudstream3.utils.Coroutines.main
 import recloudstream.AniyomiPlugin
 
-class BlankFragment(val plugin: Plugin) : BottomSheetDialogFragment() {
+class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,9 +50,19 @@ class BlankFragment(val plugin: Plugin) : BottomSheetDialogFragment() {
         return ResourcesCompat.getDrawable(plugin.resources!!, id, null)
     }
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+        (dialog as? BottomSheetDialog)?.behavior?.state = BottomSheetBehavior.STATE_EXPANDED
+        return dialog
+    }
+
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val cloudStreamVersion = view.findView<TextView>("cloudstream_version")
+        val apkVersion = view.findView<TextView>("apk_version")
+        val apkVersionHolder = view.findView<View>("apk_version_holder")
+        val apkOutdated = view.findView<View>("apk_outdated")
         val currentlyUsing = view.findView<TextView>("currently_using")
         val internallyInstalled = view.findView<TextView>("internally_installed")
         val numberOfExtensions = view.findView<TextView>("number_of_extensions")
@@ -55,6 +71,40 @@ class BlankFragment(val plugin: Plugin) : BottomSheetDialogFragment() {
         val deleteLocalButton = view.findView<ImageView>("delete_local_button")
         val externalApkButton = view.findView<ImageView>("external_apk_button")
         val externalApkRoot = view.findView<View>("external_apk_root")
+
+        normalSafeApiCall {
+            val context = view.context
+            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageInfo.longVersionCode
+            } else {
+                packageInfo.versionCode.toLong()
+            }
+            cloudStreamVersion.text = packageInfo.versionName + " • " + versionCode
+        }
+
+        apkOutdated.isVisible = false
+        try {
+            val cls =
+                Class.forName("com.lagradost.aniyomicompat.BuildConfig")
+            val instance = cls.newInstance()
+            val code = cls.getDeclaredField("VERSION_CODE").getInt(instance)
+            val name = cls.getDeclaredField("VERSION_NAME").get(instance) as? String
+            apkVersion.text = "$name • $code"
+            apkVersionHolder.isVisible = true
+
+            ioSafe {
+                val element =
+                    AniyomiPlugin.getApkMetadata()?.elements?.firstOrNull { it.versionCode != null }
+                        ?: return@ioSafe
+                val onlineVersionCode = element.versionCode ?: return@ioSafe
+                main {
+                    apkOutdated.isVisible = onlineVersionCode > code
+                }
+            }
+        } catch (_: Throwable) {
+            apkVersionHolder.isVisible = false
+        }
 
         currentlyUsing.text =
             (AniyomiPlugin.currentLoadedFile?.absolutePath ?: "None").toString()
@@ -72,7 +122,7 @@ class BlankFragment(val plugin: Plugin) : BottomSheetDialogFragment() {
                 showToast(view.context.getActivity(), "Downloading APK", Toast.LENGTH_LONG)
                 ioSafe {
                     AniyomiPlugin.downloadApk(view.context)
-                    this@BlankFragment.dismiss()
+                    this@BottomFragment.dismiss()
                 }
             }
         })
@@ -85,7 +135,7 @@ class BlankFragment(val plugin: Plugin) : BottomSheetDialogFragment() {
             override fun onClick(p0: View?) {
                 showToast(view.context.getActivity(), "Installing APK", Toast.LENGTH_LONG)
                 AniyomiPlugin.installApk(view.context)
-                this@BlankFragment.dismiss()
+                this@BottomFragment.dismiss()
             }
         })
 
@@ -101,7 +151,7 @@ class BlankFragment(val plugin: Plugin) : BottomSheetDialogFragment() {
                 normalSafeApiCall {
                     AniyomiPlugin.getLocalFile(view.context).delete()
                 }
-                this@BlankFragment.dismiss()
+                this@BottomFragment.dismiss()
             }
         })
     }
