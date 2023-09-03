@@ -2,8 +2,10 @@ package com.example
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -71,8 +73,10 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
         val deleteLocalButton = view.findView<ImageView>("delete_local_button")
         val externalApkButton = view.findView<ImageView>("external_apk_button")
         val externalApkRoot = view.findView<View>("external_apk_root")
+        val downloadAniyomiExtensionsButton =
+            view.findView<ImageView>("download_aniyomi_extensions")
 
-        normalSafeApiCall {
+        runCatching {
             val context = view.context
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
             val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -152,6 +156,19 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
                     AniyomiPlugin.getLocalFile(view.context).delete()
                 }
                 this@BottomFragment.dismiss()
+            }
+        })
+
+        downloadAniyomiExtensionsButton.imageTintList = ColorStateList.valueOf(textColor)
+        downloadAniyomiExtensionsButton.setImageDrawable(getDrawable("baseline_open_in_browser_24"))
+        downloadAniyomiExtensionsButton.setOnClickListener(object : OnClickListener {
+            override fun onClick(p0: View?) {
+                runCatching {
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        data = Uri.parse("https://aniyomi.org/extensions/")
+                    }
+                    activity?.startActivity(intent)
+                }
             }
         })
     }

@@ -154,7 +154,31 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="40dp">
+            android:paddingTop="20dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:text="Download Aniyomi extensions"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/download_aniyomi_extensions"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:clickable="true"
+                android:focusable="true"
+                tools:src="@drawable/baseline_open_in_browser_24" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="30dp">
 
             <TextView
                 android:layout_width="0dp"
@@ -178,7 +202,7 @@
             android:id="@+id/external_apk_root"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="40dp">
+            android:paddingTop="30dp">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -218,7 +242,7 @@
             android:id="@+id/delete_local_root"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="40dp">
+            android:paddingTop="30dp">
 
             <TextView
                 android:layout_width="0dp"
