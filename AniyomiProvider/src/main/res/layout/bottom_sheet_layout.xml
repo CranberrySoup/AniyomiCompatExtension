@@ -2,6 +2,7 @@
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:layoutDirection="ltr"
     android:layout_height="match_parent">
 
     <LinearLayout
@@ -119,6 +120,58 @@
                 android:paddingBottom="10dp"
                 android:textSize="17sp"
                 tools:text="Yes" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                android:text="Episode sorting method (restart required):"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:visibility="gone"
+                android:id="@+id/episode_sort_notice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.8"
+                android:paddingBottom="10dp"
+                android:text="New app version required for this feature!"
+                android:textSize="17sp"
+                android:textStyle="italic" />
+
+            <RadioGroup
+                android:id="@+id/sorting_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RadioButton
+                    android:id="@+id/radio_button_none"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="None" />
+
+                <RadioButton
+                    android:id="@+id/radio_button_reverse"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Reverse" />
+
+                <RadioButton
+                    android:id="@+id/radio_button_ascending"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Ascending" />
+
+            </RadioGroup>
+
         </LinearLayout>
 
         <LinearLayout

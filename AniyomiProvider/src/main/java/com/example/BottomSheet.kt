@@ -15,6 +15,8 @@ import android.view.View.OnClickListener
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
@@ -29,6 +31,7 @@ import com.lagradost.cloudstream3.plugins.Plugin
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import recloudstream.AniyomiPlugin
+import recloudstream.EpisodeSortMethods
 
 class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
     override fun onCreateView(
@@ -76,6 +79,12 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
         val downloadAniyomiExtensionsButton =
             view.findView<ImageView>("download_aniyomi_extensions")
 
+        val sortingGroup = view.findView<RadioGroup>("sorting_group")
+        val radioNone = view.findView<RadioButton>("radio_button_none")
+        val radioReverse = view.findView<RadioButton>("radio_button_reverse")
+        val radioAscending = view.findView<RadioButton>("radio_button_ascending")
+        val episodeSortNotice = view.findView<TextView>("episode_sort_notice")
+
         runCatching {
             val context = view.context
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
@@ -104,6 +113,7 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
                 val onlineVersionCode = element.versionCode ?: return@ioSafe
                 main {
                     apkOutdated.isVisible = onlineVersionCode > code
+                    episodeSortNotice.isVisible = code < 6
                 }
             }
         } catch (_: Throwable) {
@@ -171,5 +181,23 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
                 }
             }
         })
+
+        val sortingMap = mapOf(
+            EpisodeSortMethods.None.num to radioNone,
+            EpisodeSortMethods.Ascending.num to radioAscending,
+            EpisodeSortMethods.Reverse.num to radioReverse
+        )
+        sortingMap.forEach { (i, radioButton) ->
+            radioButton.setOnClickListener(object : OnClickListener {
+                override fun onClick(p0: View?) {
+                    AniyomiPlugin.aniyomiSortingMethod = i
+                    sortingGroup.check(radioButton.id)
+
+                }
+            })
+        }
+        sortingMap[AniyomiPlugin.aniyomiSortingMethod]?.id?.let { selectedItem ->
+            sortingGroup.check(selectedItem)
+        }
     }
 }

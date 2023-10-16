@@ -33,18 +33,32 @@ import java.io.File
  */
 const val ANIYOMI_PLUGIN_SUCCESS_KEY = "Aniyomi_Plugin_Successful_Install"
 
+enum class EpisodeSortMethods(val num: Int) {
+    None(0),
+    Ascending(1),
+    Reverse(2),
+}
+
 @CloudstreamPlugin
 class AniyomiPlugin : Plugin() {
     companion object {
         var currentLoadedFile: File? = null
         private var cachedApkMetadata: OutputMetadata? = null
-        private val packageName = "com.lagradost.aniyomicompat"
-        private val pluginClassName = "$packageName.AniyomiPlugin"
-        private val apkUrl =
+        private const val packageName = "com.lagradost.aniyomicompat"
+        private const val pluginClassName = "$packageName.AniyomiPlugin"
+        private const val apkUrl =
             "https://github.com/CranberrySoup/AniyomiCompat/raw/builds/app-debug.apk"
-        private val apkMetadataUrl = "https://raw.githubusercontent.com/CranberrySoup/AniyomiCompat/builds/output-metadata.json"
-        private val apkDir = "AniyomiCompat"
-        private val apkName = "AniyomiCompat.apk"
+        private const val apkMetadataUrl =
+            "https://raw.githubusercontent.com/CranberrySoup/AniyomiCompat/builds/output-metadata.json"
+        private const val apkDir = "AniyomiCompat"
+        private const val apkName = "AniyomiCompat.apk"
+
+        private const val sortingMethodKey = "ANIYOMI_SORTING_METHOD"
+        var aniyomiSortingMethod: Int
+            get() = getKey(sortingMethodKey) ?: EpisodeSortMethods.Ascending.num
+            set(value) {
+                setKey(sortingMethodKey, value)
+            }
 
         data class Element(
             val versionCode: Long?,
