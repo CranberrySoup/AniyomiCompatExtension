@@ -19,6 +19,7 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -85,6 +86,8 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
         val radioAscending = view.findView<RadioButton>("radio_button_ascending")
         val episodeSortNotice = view.findView<TextView>("episode_sort_notice")
 
+        val extensionSettingsButton = view.findView<ImageView>("extension_settings")
+
         runCatching {
             val context = view.context
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
@@ -116,6 +119,22 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
                     episodeSortNotice.isVisible = code < 6
                 }
             }
+
+            extensionSettingsButton.setOnClickListener(object : OnClickListener {
+                override fun onClick(p0: View?) {
+                    if (code < 7) {
+                        Toast.makeText(
+                            context,
+                            "Update Aniyomi Compat to access settings!",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        val manager = (context?.getActivity() as? AppCompatActivity)?.supportFragmentManager ?: return
+                        ExtensionFragment(plugin).show(manager, "AniyomiExtensionFragment")
+                    }
+                }
+            })
+
         } catch (_: Throwable) {
             apkVersionHolder.isVisible = false
         }
@@ -128,6 +147,9 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
             AniyomiPlugin.listExtensions(view.context).size.toString()
 
         val textColor = currentlyUsing.currentTextColor
+
+        extensionSettingsButton.imageTintList = ColorStateList.valueOf(textColor)
+        extensionSettingsButton.setImageDrawable(getDrawable("baseline_settings_24"))
 
         forceInstallButton.imageTintList = ColorStateList.valueOf(textColor)
         forceInstallButton.setImageDrawable(getDrawable("baseline_get_app_24"))
@@ -192,7 +214,6 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
                 override fun onClick(p0: View?) {
                     AniyomiPlugin.aniyomiSortingMethod = i
                     sortingGroup.check(radioButton.id)
-
                 }
             })
         }

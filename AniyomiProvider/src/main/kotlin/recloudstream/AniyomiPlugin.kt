@@ -1,8 +1,6 @@
 package recloudstream
 
 import android.annotation.SuppressLint
-import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
-import com.lagradost.cloudstream3.plugins.Plugin
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -12,6 +10,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.example.AniyomiExtension
 import com.example.BottomFragment
 import com.lagradost.cloudstream3.AcraApplication.Companion.getActivity
 import com.lagradost.cloudstream3.AcraApplication.Companion.getKey
@@ -21,6 +20,8 @@ import com.lagradost.cloudstream3.CommonActivity.showToast
 import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.mvvm.normalSafeApiCall
+import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
+import com.lagradost.cloudstream3.plugins.Plugin
 import com.lagradost.cloudstream3.ui.result.txt
 import com.lagradost.cloudstream3.utils.Coroutines.ioWorkSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
@@ -97,7 +98,7 @@ class AniyomiPlugin : Plugin() {
                 }
         }
 
-        fun listExtensions(context: Context): List<String> {
+        fun listExtensions(context: Context): List<AniyomiExtension> {
             val extensionFeature = "tachiyomi.animeextension"
             val pkgManager = context.packageManager
 
@@ -113,7 +114,10 @@ class AniyomiPlugin : Plugin() {
             return installedPkgs.filter { pkg ->
                 pkg.reqFeatures.orEmpty().any { it.name == extensionFeature }
             }.map {
-                it.packageName
+                val appInfo = it.applicationInfo
+                val name = pkgManager.getApplicationLabel(appInfo).toString().substringAfter("Aniyomi: ")
+                val icon = pkgManager.getApplicationIcon(appInfo)
+                AniyomiExtension(it.packageName, name, icon)
             }
         }
 
