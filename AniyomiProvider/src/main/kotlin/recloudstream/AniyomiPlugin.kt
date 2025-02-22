@@ -22,9 +22,9 @@ import com.lagradost.cloudstream3.mvvm.logError
 import com.lagradost.cloudstream3.mvvm.normalSafeApiCall
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 import com.lagradost.cloudstream3.plugins.Plugin
-import com.lagradost.cloudstream3.ui.result.txt
 import com.lagradost.cloudstream3.utils.Coroutines.ioWorkSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
+import com.lagradost.cloudstream3.utils.txt
 import dalvik.system.BaseDexClassLoader
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -113,9 +113,10 @@ class AniyomiPlugin : Plugin() {
 
             return installedPkgs.filter { pkg ->
                 pkg.reqFeatures.orEmpty().any { it.name == extensionFeature }
-            }.map {
-                val appInfo = it.applicationInfo
-                val name = pkgManager.getApplicationLabel(appInfo).toString().substringAfter("Aniyomi: ")
+            }.mapNotNull {
+                val appInfo = it.applicationInfo ?: return@mapNotNull null
+                val name =
+                    pkgManager.getApplicationLabel(appInfo).toString().substringAfter("Aniyomi: ")
                 val icon = pkgManager.getApplicationIcon(appInfo)
                 AniyomiExtension(it.packageName, name, icon)
             }
@@ -145,6 +146,7 @@ class AniyomiPlugin : Plugin() {
         fun loadAniyomi(context: Context, file: File) {
             normalSafeApiCall {
                 println("Loading Aniyomi Compat at: ${file.absolutePath}")
+                file.setReadOnly()
                 val classLoader = context.classLoader
                 addDexToClasspath(file, classLoader)
                 val aniyomiPlugin = classLoader.loadClass(pluginClassName).newInstance() as Plugin
@@ -157,6 +159,9 @@ class AniyomiPlugin : Plugin() {
         suspend fun downloadApk(context: Context): Boolean {
             return ioWorkSafe {
                 val finalFile = getLocalFile(context)
+                normalSafeApiCall {
+                    finalFile.setWritable(true)
+                }
                 val tmpFile = File.createTempFile("AniyomiCompat", null)
 
                 val request = app.get(apkUrl)
@@ -168,7 +173,7 @@ class AniyomiPlugin : Plugin() {
                 setKey(ANIYOMI_PLUGIN_SUCCESS_KEY, false)
                 tmpFile.copyTo(finalFile, true)
                 setKey(ANIYOMI_PLUGIN_SUCCESS_KEY, true)
-                tmpFile.deleteOnExit()
+                tmpFile.delete()
                 true
             } == true
         }
@@ -185,7 +190,7 @@ class AniyomiPlugin : Plugin() {
                 uri.path?.let {
                     val contentUri = FileProvider.getUriForFile(
                         context,
-                        BuildConfig.APPLICATION_ID + ".provider",
+                        context.packageName + ".provider",
                         File(it)
                     )
                     val installIntent = Intent(Intent.ACTION_VIEW).apply {

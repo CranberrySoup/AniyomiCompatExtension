@@ -46,13 +46,13 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
     }
 
     private fun <T : View> View.findView(name: String): T {
-        val id = plugin.resources!!.getIdentifier(name, "id", BuildConfig.LIBRARY_PACKAGE_NAME)
+        val id = plugin.resources!!.getIdentifier(name, "id", "com.example")
         return this.findViewById(id)
     }
 
     private fun getDrawable(name: String): Drawable? {
         val id =
-            plugin.resources!!.getIdentifier(name, "drawable", BuildConfig.LIBRARY_PACKAGE_NAME)
+            plugin.resources!!.getIdentifier(name, "drawable", "com.example")
         return ResourcesCompat.getDrawable(plugin.resources!!, id, null)
     }
 
@@ -77,8 +77,7 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
         val deleteLocalButton = view.findView<ImageView>("delete_local_button")
         val externalApkButton = view.findView<ImageView>("external_apk_button")
         val externalApkRoot = view.findView<View>("external_apk_root")
-        val downloadAniyomiExtensionsButton =
-            view.findView<ImageView>("download_aniyomi_extensions")
+//        val goToExtensionGithubButton = view.findView<ImageView>("go_to_apk_github")
 
         val sortingGroup = view.findView<RadioGroup>("sorting_group")
         val radioNone = view.findView<RadioButton>("radio_button_none")
@@ -191,18 +190,18 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
             }
         })
 
-        downloadAniyomiExtensionsButton.imageTintList = ColorStateList.valueOf(textColor)
-        downloadAniyomiExtensionsButton.setImageDrawable(getDrawable("baseline_open_in_browser_24"))
-        downloadAniyomiExtensionsButton.setOnClickListener(object : OnClickListener {
-            override fun onClick(p0: View?) {
-                runCatching {
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        data = Uri.parse("https://aniyomi.org/extensions/")
-                    }
-                    activity?.startActivity(intent)
-                }
-            }
-        })
+//        goToExtensionGithubButton.imageTintList = ColorStateList.valueOf(textColor)
+//        goToExtensionGithubButton.setImageDrawable(getDrawable("ic_github_logo"))
+//        goToExtensionGithubButton.setOnClickListener(object : OnClickListener {
+//            override fun onClick(p0: View?) {
+//                runCatching {
+//                    val intent = Intent(Intent.ACTION_VIEW).apply {
+//                        data = Uri.parse("https://github.com/CranberrySoup/AniyomiCompatExtension")
+//                    }
+//                    activity?.startActivity(intent)
+//                }
+//            }
+//        })
 
         val sortingMap = mapOf(
             EpisodeSortMethods.None.num to radioNone,
