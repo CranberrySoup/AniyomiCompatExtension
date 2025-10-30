@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.content.res.AssetManager
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
@@ -15,16 +16,15 @@ import com.example.BottomFragment
 import com.lagradost.cloudstream3.AcraApplication.Companion.getActivity
 import com.lagradost.cloudstream3.AcraApplication.Companion.getKey
 import com.lagradost.cloudstream3.AcraApplication.Companion.setKey
-import com.lagradost.cloudstream3.BuildConfig
 import com.lagradost.cloudstream3.CommonActivity.showToast
 import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.mvvm.logError
-import com.lagradost.cloudstream3.mvvm.normalSafeApiCall
+import com.lagradost.cloudstream3.mvvm.safe
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 import com.lagradost.cloudstream3.plugins.Plugin
-import com.lagradost.cloudstream3.ui.result.txt
 import com.lagradost.cloudstream3.utils.Coroutines.ioWorkSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
+import com.lagradost.cloudstream3.utils.txt
 import dalvik.system.BaseDexClassLoader
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -113,9 +113,10 @@ class AniyomiPlugin : Plugin() {
 
             return installedPkgs.filter { pkg ->
                 pkg.reqFeatures.orEmpty().any { it.name == extensionFeature }
-            }.map {
-                val appInfo = it.applicationInfo
-                val name = pkgManager.getApplicationLabel(appInfo).toString().substringAfter("Aniyomi: ")
+            }.mapNotNull {
+                val appInfo = it.applicationInfo ?: return@mapNotNull null
+                val name =
+                    pkgManager.getApplicationLabel(appInfo).toString().substringAfter("Aniyomi: ")
                 val icon = pkgManager.getApplicationIcon(appInfo)
                 AniyomiExtension(it.packageName, name, icon)
             }
@@ -142,8 +143,17 @@ class AniyomiPlugin : Plugin() {
             return getLocalFile(context).exists() && getKey<Boolean>(ANIYOMI_PLUGIN_SUCCESS_KEY) == true
         }
 
+        fun loadAssets(file: File) {
+//            println("Loading resources for aniyomi")
+            // based on https://stackoverflow.com/questions/7483568/dynamic-resource-loading-from-other-apk
+            val assets = AssetManager::class.java.getDeclaredConstructor().newInstance()
+            val addAssetPath =
+                AssetManager::class.java.getMethod("addAssetPath", String::class.java)
+            addAssetPath.invoke(assets, file.absolutePath)
+        }
+
         fun loadAniyomi(context: Context, file: File) {
-            normalSafeApiCall {
+            safe {
                 println("Loading Aniyomi Compat at: ${file.absolutePath}")
                 val classLoader = context.classLoader
                 addDexToClasspath(file, classLoader)
@@ -185,7 +195,7 @@ class AniyomiPlugin : Plugin() {
                 uri.path?.let {
                     val contentUri = FileProvider.getUriForFile(
                         context,
-                        BuildConfig.APPLICATION_ID + ".provider",
+                        context.packageName + ".provider",
                         File(it)
                     )
                     val installIntent = Intent(Intent.ACTION_VIEW).apply {
@@ -203,8 +213,8 @@ class AniyomiPlugin : Plugin() {
     }
 
     override fun load(context: Context) {
-        this.openSettings = openSettings@{
-            val manager = (context.getActivity() as? AppCompatActivity)?.supportFragmentManager
+        this.openSettings = openSettings@{ ctx ->
+            val manager = (ctx.getActivity() as? AppCompatActivity)?.supportFragmentManager
                 ?: return@openSettings
             BottomFragment(this).show(manager, "AniyomiCompat")
         }

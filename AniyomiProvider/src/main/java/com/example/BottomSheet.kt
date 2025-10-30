@@ -27,7 +27,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.lagradost.cloudstream3.AcraApplication.Companion.getActivity
 import com.lagradost.cloudstream3.CommonActivity.showToast
-import com.lagradost.cloudstream3.mvvm.normalSafeApiCall
+import com.lagradost.cloudstream3.mvvm.safe
 import com.lagradost.cloudstream3.plugins.Plugin
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
@@ -40,7 +40,7 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val id = plugin.resources!!.getIdentifier("bottom_sheet_layout", "layout", "com.example")
+        val id = plugin.resources!!.getIdentifier("bottom_sheet_layout", "layout", BuildConfig.LIBRARY_PACKAGE_NAME)
         val layout = plugin.resources!!.getLayout(id)
         return inflater.inflate(layout, container, false)
     }
@@ -129,8 +129,8 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
                             Toast.LENGTH_LONG
                         ).show()
                     } else {
-                        val manager = (context?.getActivity() as? AppCompatActivity)?.supportFragmentManager ?: return
-                        ExtensionFragment(plugin).show(manager, "AniyomiExtensionFragment")
+                        val manager = (context?.getActivity() as? AppCompatActivity)?.supportFragmentManager
+                        ExtensionFragment(plugin).show(manager ?: return, "AniyomiExtensionFragment")
                     }
                 }
             })
@@ -184,7 +184,7 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
         deleteLocalButton.setOnClickListener(object : OnClickListener {
             override fun onClick(p0: View?) {
                 showToast(view.context.getActivity(), "Deleting local file", Toast.LENGTH_LONG)
-                normalSafeApiCall {
+                safe {
                     AniyomiPlugin.getLocalFile(view.context).delete()
                 }
                 this@BottomFragment.dismiss()

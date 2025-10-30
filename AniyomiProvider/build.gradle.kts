@@ -2,7 +2,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 // use an integer for version numbers
-version = 6
+version = 7
 
 cloudstream {
     // All of these properties are optional, you can safely remove them
@@ -34,8 +34,10 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.5")
     implementation("androidx.preference:preference:1.2.1")
 }
+
 android {
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
