@@ -2,10 +2,8 @@ package com.example
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -46,13 +44,13 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
     }
 
     private fun <T : View> View.findView(name: String): T {
-        val id = plugin.resources!!.getIdentifier(name, "id", "com.example")
+        val id = plugin.resources!!.getIdentifier(name, "id", BuildConfig.LIBRARY_PACKAGE_NAME)
         return this.findViewById(id)
     }
 
     private fun getDrawable(name: String): Drawable? {
         val id =
-            plugin.resources!!.getIdentifier(name, "drawable", "com.example")
+            plugin.resources!!.getIdentifier(name, "drawable", BuildConfig.LIBRARY_PACKAGE_NAME)
         return ResourcesCompat.getDrawable(plugin.resources!!, id, null)
     }
 
@@ -139,7 +137,7 @@ class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
         }
 
         currentlyUsing.text =
-            (AniyomiPlugin.currentLoadedFile?.absolutePath ?: "None").toString()
+            (AniyomiPlugin.currentLoadedFile?.absolutePath ?: "None")
         internallyInstalled.text =
             AniyomiPlugin.getIsLocallyInstalled(view.context).toString()
         numberOfExtensions.text =

@@ -168,7 +168,7 @@ class AniyomiPlugin : Plugin() {
         suspend fun downloadApk(context: Context): Boolean {
             return ioWorkSafe {
                 val finalFile = getLocalFile(context)
-                normalSafeApiCall {
+                safe {
                     finalFile.setWritable(true)
                 }
                 val tmpFile = File.createTempFile("AniyomiCompat", null)

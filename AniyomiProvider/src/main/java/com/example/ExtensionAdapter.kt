@@ -29,18 +29,18 @@ class ExtensionAdapter(
 ) : RecyclerView.Adapter<ExtensionAdapter.ViewHolder>() {
 
     private fun <T : View> View.findView(name: String): T {
-        val id = plugin.resources!!.getIdentifier(name, "id", "com.example")
+        val id = plugin.resources!!.getIdentifier(name, "id", BuildConfig.LIBRARY_PACKAGE_NAME)
         return this.findViewById(id)
     }
 
     private fun getDrawable(name: String): Drawable? {
         val id =
-            plugin.resources!!.getIdentifier(name, "drawable", "com.example")
+            plugin.resources!!.getIdentifier(name, "drawable", BuildConfig.LIBRARY_PACKAGE_NAME)
         return ResourcesCompat.getDrawable(plugin.resources!!, id, null)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val id = plugin.resources!!.getIdentifier("extension_item", "layout", "com.example")
+        val id = plugin.resources!!.getIdentifier("extension_item", "layout", BuildConfig.LIBRARY_PACKAGE_NAME)
         val layout = plugin.resources!!.getLayout(id)
         val inflater = LayoutInflater.from(parent.context)
 
