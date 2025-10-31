@@ -31,13 +31,13 @@ class ExtensionFragment(private val plugin: Plugin) : BottomSheetDialogFragment(
     }
 
     private fun <T : View> View.findView(name: String): T {
-        val id = plugin.resources!!.getIdentifier(name, "id", BuildConfig.LIBRARY_PACKAGE_NAME)
+        val id = plugin.resources!!.getIdentifier(name, "id", "com.example")
         return this.findViewById(id)
     }
 
     private fun getDrawable(name: String): Drawable? {
         val id =
-            plugin.resources!!.getIdentifier(name, "drawable", BuildConfig.LIBRARY_PACKAGE_NAME)
+            plugin.resources!!.getIdentifier(name, "drawable", "com.example")
         return ResourcesCompat.getDrawable(plugin.resources!!, id, null)
     }
 

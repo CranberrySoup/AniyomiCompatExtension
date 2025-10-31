@@ -155,6 +155,7 @@ class AniyomiPlugin : Plugin() {
         fun loadAniyomi(context: Context, file: File) {
             safe {
                 println("Loading Aniyomi Compat at: ${file.absolutePath}")
+                file.setReadOnly()
                 val classLoader = context.classLoader
                 addDexToClasspath(file, classLoader)
                 val aniyomiPlugin = classLoader.loadClass(pluginClassName).newInstance() as Plugin
@@ -167,6 +168,9 @@ class AniyomiPlugin : Plugin() {
         suspend fun downloadApk(context: Context): Boolean {
             return ioWorkSafe {
                 val finalFile = getLocalFile(context)
+                normalSafeApiCall {
+                    finalFile.setWritable(true)
+                }
                 val tmpFile = File.createTempFile("AniyomiCompat", null)
 
                 val request = app.get(apkUrl)
@@ -178,7 +182,7 @@ class AniyomiPlugin : Plugin() {
                 setKey(ANIYOMI_PLUGIN_SUCCESS_KEY, false)
                 tmpFile.copyTo(finalFile, true)
                 setKey(ANIYOMI_PLUGIN_SUCCESS_KEY, true)
-                tmpFile.deleteOnExit()
+                tmpFile.delete()
                 true
             } == true
         }
