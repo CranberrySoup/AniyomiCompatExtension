@@ -1,10 +1,7 @@
 package com.example
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
-import android.content.Context
-import android.content.ContextWrapper
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -26,6 +23,7 @@ import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.lagradost.cloudstream3.CloudStreamApp.Companion.getActivity
 import com.lagradost.cloudstream3.CommonActivity.showToast
 import com.lagradost.cloudstream3.mvvm.safe
 import com.lagradost.cloudstream3.plugins.Plugin
@@ -35,17 +33,6 @@ import recloudstream.AniyomiPlugin
 import recloudstream.EpisodeSortMethods
 
 class BottomFragment(private val plugin: Plugin) : BottomSheetDialogFragment() {
-    companion object {
-        /** Use to get Activity from Context. */
-        tailrec fun Context.getActivity(): Activity? {
-            return when (this) {
-                is Activity -> this
-                is ContextWrapper -> baseContext.getActivity()
-                else -> null
-            }
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
