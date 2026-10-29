@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.lagradost.cloudstream3.APIHolder.apis
+import com.lagradost.cloudstream3.MainAPI
 import com.lagradost.cloudstream3.plugins.Plugin
 import recloudstream.AniyomiPlugin
 
@@ -55,7 +55,15 @@ class ExtensionFragment(private val plugin: Plugin) : BottomSheetDialogFragment(
 
         val extensions = AniyomiPlugin.listExtensions(view.context)
 
-        val aniyomiApis = apis.filter {
+        @Suppress("UNCHECKED_CAST")
+        val rawApis: List<MainAPI> = runCatching {
+            val holderClass = Class.forName("com.lagradost.cloudstream3.APIHolder")
+            val instance = holderClass.getField("INSTANCE").get(null)
+            val method = holderClass.methods.firstOrNull { it.name == "getApis" }
+            method?.invoke(instance) as? List<MainAPI>
+        }.getOrNull() ?: emptyList()
+
+        val aniyomiApis = rawApis.filter {
             // Good enough
             it.name.endsWith("⦁")
         }.map { api ->
